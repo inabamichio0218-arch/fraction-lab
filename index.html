@@ -17,7 +17,20 @@ const frame=document.getElementById('frame'),rows=document.getElementById('rows'
 let lanes=[[],[],[],[],[]],selectedRow=null,selectedN=null,actions=[],drag=null,found=new Set();
 let previousComplete=[false,false,false,false,false],toastTimer=null,selectedPiece=null;
 const positions=[289,460,632,804,975];
-function fit(){let w=window.innerWidth,h=window.innerHeight;let v=window.visualViewport;if(v){w=v.width;h=v.height;}const scale=Math.min(w/1125,h/2000);frame.style.transform=`scale(${scale})`;frame.style.left=`${(w-1125*scale)/2}px`;frame.style.top=`${(h-2000*scale)/2}px`;}
+function fit(){
+  const v=window.visualViewport;
+  const w=v?.width || window.innerWidth;
+  const h=v?.height || window.innerHeight;
+  // The useful layout ends just above y=1930, leaving unused background at the bottom.
+  // Fit the *useful* area instead of shrinking for the full 2000px canvas.
+  // Keep the whole controls/footer in view when Safari's toolbar is visible.
+  const usefulHeight=1930;
+  const margin=8;
+  const scale=Math.min(w/1125, Math.max(.1,(h-margin)/usefulHeight));
+  frame.style.transform=`scale(${scale})`;
+  frame.style.left=`${(w-1125*scale)/2}px`;
+  frame.style.top=`${Math.max(0,(h-usefulHeight*scale)/2)}px`;
+}
 window.addEventListener('resize',fit);window.visualViewport?.addEventListener('resize',fit);fit();
 function value(row){return row.reduce((a,n)=>a+BASE/n,0)}
 function fmt(row){return row.slice().sort((a,b)=>a-b).join(',')}
